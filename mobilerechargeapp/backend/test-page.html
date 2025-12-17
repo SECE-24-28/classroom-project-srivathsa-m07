@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Connection Test</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .test { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button { background: #6366f1; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        button:hover { background: #4f46e5; }
+        pre { background: #f9f9f9; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 API & Database Connection Test</h1>
+    
+    <div class="test">
+        <h2>1. Server Health Check</h2>
+        <button onclick="testHealth()">Test Health API</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>2. MongoDB - Plans Data</h2>
+        <button onclick="testPlans()">Test Plans API</button>
+        <div id="plans-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>3. MongoDB - Airtel Plans</h2>
+        <button onclick="testAirtel()">Test Airtel Plans</button>
+        <div id="airtel-result"></div>
+    </div>
+
+    <div class="test">
+        <h2>4. Create Test Account</h2>
+        <button onclick="testSignup()">Test Signup API</button>
+        <div id="signup-result"></div>
+    </div>
+
+    <script>
+        async function testHealth() {
+            const result = document.getElementById('health-result');
+            result.innerHTML = 'Testing...';
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                result.innerHTML = `<p class="success">✅ Server is running!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                result.innerHTML = `<p class="error">❌ Error: ${err.message}</p>`;
+            }
+        }
+
+        async function testPlans() {
+            const result = document.getElementById('plans-result');
+            result.innerHTML = 'Testing...';
+            try {
+                const res = await fetch('/api/plans');
+                const data = await res.json();
+                result.innerHTML = `<p class="success">✅ MongoDB Connected! Found ${data.operators.length} operators</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                result.innerHTML = `<p class="error">❌ Error: ${err.message}</p>`;
+            }
+        }
+
+        async function testAirtel() {
+            const result = document.getElementById('airtel-result');
+            result.innerHTML = 'Testing...';
+            try {
+                const res = await fetch('/api/plans/airtel');
+                const data = await res.json();
+                result.innerHTML = `<p class="success">✅ MongoDB Query Working! Found ${data.plans.length} Airtel plans</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (err) {
+                result.innerHTML = `<p class="error">❌ Error: ${err.message}</p>`;
+            }
+        }
+
+        async function testSignup() {
+            const result = document.getElementById('signup-result');
+            result.innerHTML = 'Testing...';
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test User',
+                        email: 'test' + Date.now() + '@example.com',
+                        password: 'test123'
+                    })
+                });
+                const data = await res.json();
+                if (data.error) {
+                    result.innerHTML = `<p class="error">❌ ${data.error}</p>`;
+                } else {
+                    result.innerHTML = `<p class="success">✅ Account created in MongoDB!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+            } catch (err) {
+                result.innerHTML = `<p class="error">❌ Error: ${err.message}</p>`;
+            }
+        }
+
+        // Auto-run tests on page load
+        window.onload = () => {
+            testHealth();
+            setTimeout(testPlans, 500);
+            setTimeout(testAirtel, 1000);
+        };
+    </script>
+</body>
+</html>
