@@ -22,9 +22,9 @@ const authMiddleware = (req, res, next) => {
 // Create recharge
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { mobileNumber, operator, plan } = req.body;
+    const { mobileNumber, operator, plan, paymentMethod } = req.body;
 
-    if (!mobileNumber || !operator || !plan) {
+    if (!mobileNumber || !operator || !plan || !paymentMethod) {
       return res.status(400).json({ error: 'All fields required' });
     }
 
@@ -33,6 +33,8 @@ router.post('/', authMiddleware, async (req, res) => {
       mobileNumber,
       operator,
       plan,
+      paymentMethod,
+      transactionId: 'TXN' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase(),
       date: new Date(),
       status: 'success'
     };

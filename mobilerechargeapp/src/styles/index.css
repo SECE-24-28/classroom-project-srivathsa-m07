@@ -68,4 +68,37 @@ body {
 .animate-fade-in:nth-child(4) { animation-delay: 0.3s; }
 .animate-fade-in:nth-child(5) { animation-delay: 0.4s; }
 .animate-fade-in:nth-child(6) { animation-delay: 0.5s; }
-  
+
+/* Print styles for receipt */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print\:shadow-none,
+  .print\:shadow-none * {
+    visibility: visible;
+  }
+  .print\:shadow-none {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+  .print\:bg-green-600 {
+    background-color: #16a34a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* Hover scale effect */
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}

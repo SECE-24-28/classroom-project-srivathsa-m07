@@ -32,7 +32,8 @@ function getDB() {
 const collections = {
   users: () => getDB().collection('users'),
   recharges: () => getDB().collection('recharges'),
-  plans: () => getDB().collection('plans')
+  plans: () => getDB().collection('plans'),
+  reviews: () => getDB().collection('reviews')
 };
 
 // User operations
@@ -130,6 +131,27 @@ const planOps = {
   }
 };
 
+// Review operations
+const reviewOps = {
+  create: async (reviewData) => {
+    return await collections.reviews().insertOne({
+      ...reviewData,
+      createdAt: new Date()
+    });
+  },
+  
+  getAll: async () => {
+    return await collections.reviews()
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+  },
+  
+  getByUserId: async (userId) => {
+    return await collections.reviews().findOne({ userId });
+  }
+};
+
 // Close connection
 async function close() {
   if (client) {
@@ -145,5 +167,6 @@ module.exports = {
   userOps,
   rechargeOps,
   planOps,
+  reviewOps,
   close
 };

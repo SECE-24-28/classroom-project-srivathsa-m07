@@ -23,6 +23,7 @@ server.use(session({
 server.use('/api/auth', require('./routes/auth'));
 server.use('/api/recharge', require('./routes/recharge'));
 server.use('/api/plans', require('./routes/plans'));
+server.use('/api/reviews', require('./routes/reviews'));
 
 // Health check
 server.get('/api/health', (req, res) => {

@@ -1,14 +1,16 @@
 import React, { useState, useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PlanCard from '../components/PlanCard'
+import PaymentModal from '../components/PaymentModal'
+import Receipt from '../components/Receipt'
 import { AuthContext } from '../context/AuthContext'
 import { rechargeAPI } from '../services/api'
 
 const OPERATORS = [
-  { id: 'airtel', name: 'Airtel', color: 'from-red-500 to-red-600', logo: '🔴' },
-  { id: 'jio', name: 'Jio', color: 'from-blue-500 to-blue-600', logo: '🔵' },
-  { id: 'vi', name: 'Vi', color: 'from-purple-500 to-purple-600', logo: '🟣' },
-  { id: 'bsnl', name: 'BSNL', color: 'from-yellow-500 to-orange-600', logo: '🟡' }
+  { id: 'airtel', name: 'Airtel', color: 'from-red-500 to-red-600' },
+  { id: 'jio', name: 'Jio', color: 'from-blue-500 to-blue-600' },
+  { id: 'vi', name: 'Vi', color: 'from-purple-500 to-purple-600' },
+  { id: 'bsnl', name: 'BSNL', color: 'from-yellow-500 to-orange-600' }
 ]
 
 const PLANS_BY_OPERATOR = {
@@ -46,13 +48,17 @@ export default function RechargePlans(){
   const [selectedOperator, setSelectedOperator] = useState(null)
   const [filter, setFilter] = useState('all')
   const [mobileNumber, setMobileNumber] = useState('')
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showReceipt, setShowReceipt] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [rechargeData, setRechargeData] = useState(null)
   const { user, isLoggedIn } = useContext(AuthContext || {})
   const navigate = useNavigate()
 
   const plans = selectedOperator ? PLANS_BY_OPERATOR[selectedOperator] : []
   const filteredPlans = plans.filter(plan => filter === 'all' || plan.type === filter)
 
-  async function handleSelect(plan){
+  function handleSelect(plan){
     if(!isLoggedIn){
       alert('⚠️ Please login to recharge')
       navigate('/login')
@@ -69,35 +75,62 @@ export default function RechargePlans(){
       return
     }
     
+    setSelectedPlan(plan)
+    setShowPaymentModal(true)
+  }
+
+  async function handlePaymentConfirm(paymentMethod){
     try {
       const data = await rechargeAPI.create({
         mobileNumber,
         operator: selectedOperator,
-        plan
+        plan: selectedPlan,
+        paymentMethod
       })
       
       if(data.error){
         alert('⚠️ ' + data.error)
+        setShowPaymentModal(false)
       } else {
-        alert(`✅ Recharge Successful!\n${OPERATORS.find(o => o.id === selectedOperator)?.name} - ₹${plan.price} recharged to ${mobileNumber}`)
-        navigate('/dashboard')
+        setRechargeData(data.recharge)
+        setShowPaymentModal(false)
+        setShowReceipt(true)
       }
     } catch (err) {
       alert('⚠️ Server error. Please try again.')
+      setShowPaymentModal(false)
     }
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <>
+      {showPaymentModal && (
+        <PaymentModal
+          plan={selectedPlan}
+          mobileNumber={mobileNumber}
+          operator={selectedOperator}
+          onConfirm={handlePaymentConfirm}
+          onCancel={() => setShowPaymentModal(false)}
+        />
+      )}
+      
+      {showReceipt && rechargeData && (
+        <Receipt
+          recharge={rechargeData}
+          onClose={() => setShowReceipt(false)}
+        />
+      )}
+      
+      <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-2xl p-8 text-white shadow-2xl animate-gradient">
         <h1 className="text-3xl font-bold mb-2">Mobile Recharge</h1>
-        <p className="text-blue-100">Enter number, select operator & choose plan</p>
+        <p className="text-blue-100">Enter number, select operator and choose plan</p>
       </div>
       
       {/* Mobile Number Input */}
       <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-purple-100">
-        <label className="block text-sm font-bold text-gray-700 mb-3">📱 Mobile Number</label>
+        <label className="block text-sm font-bold text-gray-700 mb-3">Mobile Number</label>
         <input 
           type="tel"
           value={mobileNumber}
@@ -107,13 +140,13 @@ export default function RechargePlans(){
           maxLength="10"
         />
         {mobileNumber && mobileNumber.length === 10 && (
-          <p className="mt-3 text-green-600 text-sm font-bold animate-fade-in">✓ Valid mobile number</p>
+          <p className="mt-3 text-green-600 text-sm font-bold animate-fade-in">Valid mobile number</p>
         )}
       </div>
       
       {/* Operator Selection */}
       <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-purple-100">
-        <label className="block text-sm font-bold text-gray-700 mb-4">📡 Select Operator</label>
+        <label className="block text-sm font-bold text-gray-700 mb-4">Select Operator</label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {OPERATORS.map(operator => (
             <button
@@ -125,7 +158,6 @@ export default function RechargePlans(){
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 shadow-md'
               }`}
             >
-              <div className="text-4xl mb-2">{operator.logo}</div>
               {operator.name}
             </button>
           ))}
@@ -148,7 +180,7 @@ export default function RechargePlans(){
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {type === 'all' ? '🎯 All Plans' : type === 'prepaid' ? '💳 Prepaid' : '📋 Postpaid'}
+                  {type === 'all' ? 'All Plans' : type === 'prepaid' ? 'Prepaid' : 'Postpaid'}
                 </button>
               ))}
             </div>
@@ -165,11 +197,11 @@ export default function RechargePlans(){
         </div>
       ) : (
         <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-12 text-center shadow-xl border-2 border-purple-200">
-          <div className="text-6xl mb-4 animate-bounce">📱</div>
           <h3 className="text-2xl font-bold text-gray-800 mb-2">Select an Operator</h3>
           <p className="text-gray-600">Choose your mobile operator to view available plans</p>
         </div>
       )}
     </div>
+    </>
   )
 }

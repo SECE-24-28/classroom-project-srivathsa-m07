@@ -23,7 +23,7 @@ export default function Signup(){
       if(data.error){
         alert(data.error)
       } else {
-        alert('✅ Account created successfully! Please login.')
+        alert('Account created successfully! Please login.')
         navigate('/login')
       }
     } catch (err) {
@@ -37,7 +37,7 @@ export default function Signup(){
     <div className="max-w-md mx-auto mt-8">
       <div className="bg-white rounded-xl shadow-xl p-8">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
@@ -53,7 +53,7 @@ export default function Signup(){
               value={name} 
               onChange={e=>setName(e.target.value)} 
               placeholder="Enter your full name" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
@@ -64,7 +64,7 @@ export default function Signup(){
               onChange={e=>setEmail(e.target.value)} 
               type="email"
               placeholder="Enter your email" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
@@ -75,13 +75,13 @@ export default function Signup(){
               onChange={e=>setPassword(e.target.value)} 
               type="password" 
               placeholder="Create a password" 
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             />
           </div>
 
           <button 
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all shadow-md"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all shadow-md"
           >
             Create Account
           </button>
@@ -89,7 +89,7 @@ export default function Signup(){
 
         <p className="mt-6 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+          <Link to="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
             Login
           </Link>
         </p>
