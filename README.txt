@@ -1,0 +1,1 @@
+This project contains Day1..Day5 folders as required. For Day5 replace the MockAPI endpoint placeholder in Day5/assets/js/plans.js with your MockAPI URL.
