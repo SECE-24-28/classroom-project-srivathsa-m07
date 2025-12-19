@@ -19,30 +19,96 @@ export default function LandingPage(){
   return (
     <div className="space-y-12 animate-fade-in">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl p-12 md:p-16 text-white shadow-2xl overflow-hidden animate-gradient">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl animate-pulse-slow"></div>
-          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-300 rounded-full blur-3xl animate-pulse-slow" style={{animationDelay: '1s'}}></div>
-        </div>
-        
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-block bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            India's #1 Recharge Platform
+      <section className="relative bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
+          {/* Left Content */}
+          <div className="p-12 md:p-16">
+            <div className="inline-block bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+              Trusted by 50,000+ Users
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-gray-900">
+              Mobile Recharge
+              <span className="block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Made Simple
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+              Instant recharges for all major operators. Fast, secure, and reliable service at your fingertips.
+            </p>
+            <div className="flex gap-4 flex-wrap">
+              <Link to="/plans" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:shadow-xl transition-all transform hover:scale-105">
+                Get Started
+              </Link>
+              <Link to="/signup" className="bg-white border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg hover:border-purple-600 hover:text-purple-600 transition-all">
+                Create Account
+              </Link>
+            </div>
+            
+            {/* Trust Badges */}
+            <div className="flex gap-6 mt-8 pt-8 border-t border-gray-200">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-gray-600 font-medium">100% Secure</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-gray-600 font-medium">Instant Process</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-gray-600 font-medium">24/7 Support</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            Instant Mobile Recharge
-            <span className="block text-yellow-300">In Just 10 Seconds!</span>
-          </h1>
-          <p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-            Fast, secure and hassle-free recharges for all networks. Join millions of happy customers
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/plans" className="bg-white text-purple-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-blue-50 transition-all shadow-2xl transform hover:scale-105">
-              Recharge Now
-            </Link>
-            <Link to="/signup" className="bg-purple-700/50 backdrop-blur-sm border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-purple-800/50 transition-all transform hover:scale-105">
-              Sign Up Free
-            </Link>
+          
+          {/* Right Image */}
+          <div className="relative h-full min-h-[500px] bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center p-8">
+            <div className="relative w-full max-w-md">
+              {/* Phone Mockup SVG */}
+              <svg viewBox="0 0 300 600" className="w-full drop-shadow-2xl">
+                {/* Phone Frame */}
+                <rect x="10" y="10" width="280" height="580" rx="30" fill="#1f2937" />
+                <rect x="20" y="20" width="260" height="560" rx="25" fill="#111827" />
+                
+                {/* Screen */}
+                <rect x="30" y="80" width="240" height="480" rx="15" fill="white" />
+                
+                {/* App UI */}
+                <rect x="40" y="90" width="220" height="60" rx="10" fill="url(#gradient1)" />
+                <text x="150" y="125" textAnchor="middle" fill="white" fontSize="18" fontWeight="bold">RechargePro</text>
+                
+                {/* Operator Cards */}
+                <rect x="40" y="170" width="100" height="80" rx="10" fill="#ef4444" opacity="0.9" />
+                <rect x="150" y="170" width="100" height="80" rx="10" fill="#3b82f6" opacity="0.9" />
+                <rect x="40" y="260" width="100" height="80" rx="10" fill="#8b5cf6" opacity="0.9" />
+                <rect x="150" y="260" width="100" height="80" rx="10" fill="#f59e0b" opacity="0.9" />
+                
+                {/* Plan Cards */}
+                <rect x="40" y="360" width="220" height="70" rx="10" fill="#f3f4f6" />
+                <rect x="50" y="370" width="60" height="50" rx="8" fill="#a855f7" />
+                <rect x="120" y="375" width="120" height="8" rx="4" fill="#d1d5db" />
+                <rect x="120" y="395" width="80" height="8" rx="4" fill="#d1d5db" />
+                
+                <rect x="40" y="445" width="220" height="70" rx="10" fill="#f3f4f6" />
+                <rect x="50" y="455" width="60" height="50" rx="8" fill="#ec4899" />
+                <rect x="120" y="460" width="120" height="8" rx="4" fill="#d1d5db" />
+                <rect x="120" y="480" width="80" height="8" rx="4" fill="#d1d5db" />
+                
+                {/* Gradient Definition */}
+                <defs>
+                  <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#9333ea" />
+                    <stop offset="100%" stopColor="#ec4899" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
           </div>
         </div>
       </section>

@@ -33,7 +33,8 @@ const collections = {
   users: () => getDB().collection('users'),
   recharges: () => getDB().collection('recharges'),
   plans: () => getDB().collection('plans'),
-  reviews: () => getDB().collection('reviews')
+  reviews: () => getDB().collection('reviews'),
+  admins: () => getDB().collection('admins')
 };
 
 // User operations
@@ -152,6 +153,26 @@ const reviewOps = {
   }
 };
 
+// Admin operations
+const adminOps = {
+  create: async (adminData) => {
+    return await collections.admins().insertOne(adminData);
+  },
+  
+  findByEmail: async (email) => {
+    return await collections.admins().findOne({ email });
+  },
+  
+  findById: async (id) => {
+    try {
+      const objectId = typeof id === 'string' ? new ObjectId(id) : id;
+      return await collections.admins().findOne({ _id: objectId });
+    } catch (error) {
+      return null;
+    }
+  }
+};
+
 // Close connection
 async function close() {
   if (client) {
@@ -168,5 +189,6 @@ module.exports = {
   rechargeOps,
   planOps,
   reviewOps,
+  adminOps,
   close
 };

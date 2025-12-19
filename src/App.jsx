@@ -10,6 +10,11 @@ import Profile from "./pages/Profile";
 
 // Import both AuthProvider (default) and AuthContext (named export) from AuthContext.jsx
 import AuthProvider, { AuthContext } from "./context/AuthContext";
+import AdminProvider from "./context/AdminContext";
+import AdminLogin from "./pages/AdminLogin";
+import AdminSignup from "./pages/AdminSignup";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPlans from "./pages/AdminPlans";
 
 /**
  * ProtectedRoute: redirects to /login when not logged in
@@ -142,7 +147,8 @@ function DashboardContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
+      <AdminProvider>
+        <Router>
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100">
           <Navbar />
           <main className="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full">
@@ -170,6 +176,12 @@ export default function App() {
                 }
               />
 
+              {/* Admin Routes */}
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/signup" element={<AdminSignup />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/plans" element={<AdminPlans />} />
+
               <Route path="*" element={
                 <div className="text-center py-12 bg-white rounded-xl shadow-md">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Page Not Found</h2>
@@ -184,6 +196,7 @@ export default function App() {
           <Footer />
         </div>
       </Router>
+      </AdminProvider>
     </AuthProvider>
   );
 }
