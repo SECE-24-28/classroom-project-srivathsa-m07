@@ -1,21 +1,60 @@
 const { MongoClient, ObjectId } = require('mongodb');
+require('dotenv').config();
 
-const uri = 'mongodb://localhost:27017';
-const dbName = 'recharge_pro';
+// MongoDB Atlas ONLY - No local fallback
+const mongoUri = process.env.MONGODB_URI;
+const dbName = process.env.DB_NAME || 'recharge_pro';
+
+if (!mongoUri) {
+  console.error('❌ MONGODB_URI environment variable is required!');
+  console.log('Please set your Atlas connection string in .env file');
+  process.exit(1);
+}
 
 let db = null;
 let client = null;
 
-// Connect to MongoDB
 async function connect() {
   try {
-    client = new MongoClient(uri);
+    console.log('🔄 Connecting to MongoDB Atlas...');
+    console.log('🌐 URI:', mongoUri.replace(/\/\/([^:]+):([^@]+)@/, '//***:***@'));
+    
+    client = new MongoClient(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10,
+      retryWrites: true,
+      w: 'majority'
+    });
+    
     await client.connect();
+    console.log('🏓 Testing connection...');
+    await client.db('admin').command({ ping: 1 });
+    
     db = client.db(dbName);
-    console.log('✅ Connected to MongoDB');
+    
+    console.log('✅ Successfully connected to MongoDB Atlas!');
+    console.log('📊 Database:', dbName);
+    console.log('🌐 Cluster: Connected and ready');
+    
     return db;
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('❌ MongoDB Atlas connection failed!');
+    console.error('Error:', error.message);
+    
+    if (error.message.includes('authentication failed')) {
+      console.log('🔑 Check your username and password in connection string');
+    } else if (error.message.includes('network')) {
+      console.log('🌐 Check your network and Atlas cluster status');
+    } else if (error.message.includes('timeout')) {
+      console.log('⏰ Connection timeout - verify cluster is running');
+    }
+    
+    console.log('\n📋 Troubleshooting:');
+    console.log('1. Verify your Atlas connection string in .env');
+    console.log('2. Check if your IP is whitelisted in Atlas');
+    console.log('3. Ensure cluster is running (not paused)');
+    
     throw error;
   }
 }
@@ -33,7 +72,8 @@ const collections = {
   users: () => getDB().collection('users'),
   recharges: () => getDB().collection('recharges'),
   plans: () => getDB().collection('plans'),
-  reviews: () => getDB().collection('reviews')
+  reviews: () => getDB().collection('reviews'),
+  admins: () => getDB().collection('admins')
 };
 
 // User operations
@@ -56,8 +96,9 @@ const userOps = {
   },
   
   updateById: async (id, updateData) => {
+    const objectId = typeof id === 'string' ? new ObjectId(id) : id;
     return await collections.users().updateOne(
-      { _id: id },
+      { _id: objectId },
       { $set: updateData }
     );
   }
@@ -66,7 +107,12 @@ const userOps = {
 // Recharge operations
 const rechargeOps = {
   create: async (rechargeData) => {
-    return await collections.recharges().insertOne(rechargeData);
+    const data = {
+      ...rechargeData,
+      date: new Date(),
+      status: 'success'
+    };
+    return await collections.recharges().insertOne(data);
   },
   
   findByUserId: async (userId) => {
@@ -78,7 +124,7 @@ const rechargeOps = {
   
   getStats: async (userId) => {
     const recharges = await rechargeOps.findByUserId(userId);
-    const totalSpent = recharges.reduce((sum, r) => sum + r.plan.price, 0);
+    const totalSpent = recharges.reduce((sum, r) => sum + (r.plan?.price || 0), 0);
     const latestPlan = recharges[0]?.plan || null;
     
     return {
@@ -97,7 +143,10 @@ const planOps = {
   
   seedPlans: async () => {
     const count = await collections.plans().countDocuments();
-    if (count > 0) return;
+    if (count > 0) {
+      console.log('📋 Plans already exist, skipping seed');
+      return;
+    }
     
     const plans = [
       // Airtel
@@ -127,7 +176,7 @@ const planOps = {
     ];
     
     await collections.plans().insertMany(plans);
-    console.log('✅ Plans seeded');
+    console.log('✅ Plans seeded successfully');
   }
 };
 
@@ -152,6 +201,26 @@ const reviewOps = {
   }
 };
 
+// Admin operations
+const adminOps = {
+  create: async (adminData) => {
+    return await collections.admins().insertOne(adminData);
+  },
+  
+  findByEmail: async (email) => {
+    return await collections.admins().findOne({ email });
+  },
+  
+  findById: async (id) => {
+    try {
+      const objectId = typeof id === 'string' ? new ObjectId(id) : id;
+      return await collections.admins().findOne({ _id: objectId });
+    } catch (error) {
+      return null;
+    }
+  }
+};
+
 // Close connection
 async function close() {
   if (client) {
@@ -168,5 +237,6 @@ module.exports = {
   rechargeOps,
   planOps,
   reviewOps,
+  adminOps,
   close
 };

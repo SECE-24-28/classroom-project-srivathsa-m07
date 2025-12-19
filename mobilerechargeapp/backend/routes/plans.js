@@ -45,21 +45,34 @@ const PLANS_BY_OPERATOR = {
 router.get('/:operator', async (req, res) => {
   try {
     const { operator } = req.params;
-    const plans = await db.planOps.getByOperator(operator);
+    let plans = await db.planOps.getByOperator(operator);
     
+    // Fallback to static data if database is empty
     if (!plans || plans.length === 0) {
+      plans = PLANS_BY_OPERATOR[operator] || [];
+    }
+    
+    if (plans.length === 0) {
       return res.status(404).json({ error: 'No plans found for operator' });
     }
     
     res.json({ plans });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('Plans error:', error);
+    // Fallback to static data on error
+    const plans = PLANS_BY_OPERATOR[req.params.operator] || [];
+    res.json({ plans });
   }
 });
 
 // Get all operators
 router.get('/', (req, res) => {
-  res.json({ operators: OPERATORS });
+  try {
+    res.json({ operators: OPERATORS });
+  } catch (error) {
+    console.error('Operators error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;

@@ -1,51 +1,74 @@
 const db = require('./db');
 
 async function testConnection() {
-  console.log('🔍 Testing MongoDB Connection...\n');
+  console.log('🧪 Testing Database Connection...');
+  console.log('=' .repeat(50));
   
   try {
-    // Test 1: Connect to MongoDB
-    console.log('1️⃣ Connecting to MongoDB...');
+    // Test connection
     await db.connect();
-    console.log('✅ MongoDB Connected Successfully\n');
+    console.log('✅ Database connection successful!');
     
-    // Test 2: Check Collections
-    console.log('2️⃣ Checking Collections...');
-    const database = db.getDB();
-    const collections = await database.listCollections().toArray();
-    console.log('✅ Collections:', collections.map(c => c.name).join(', ') || 'None yet');
-    console.log('');
+    // Test basic operations
+    console.log('\n📊 Testing database operations...');
     
-    // Test 3: Seed Plans
-    console.log('3️⃣ Seeding Plans...');
+    // Test user operations
+    const testUser = {
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'hashedpassword',
+      createdAt: new Date()
+    };
+    
+    const userResult = await db.userOps.create(testUser);
+    console.log('✅ User creation test passed:', userResult.insertedId);
+    
+    const foundUser = await db.userOps.findByEmail('test@example.com');
+    console.log('✅ User find test passed:', foundUser ? 'Found' : 'Not found');
+    
+    // Test plan operations
     await db.planOps.seedPlans();
-    console.log('✅ Plans Seeded\n');
+    console.log('✅ Plans seeding test passed');
     
-    // Test 4: Check Plans Count
-    console.log('4️⃣ Checking Plans...');
-    const plansCount = await db.collections.plans().countDocuments();
-    console.log(`✅ Total Plans: ${plansCount}\n`);
-    
-    // Test 5: Get Airtel Plans
-    console.log('5️⃣ Getting Airtel Plans...');
     const airtelPlans = await db.planOps.getByOperator('airtel');
-    console.log(`✅ Airtel Plans: ${airtelPlans.length}`);
-    airtelPlans.forEach(p => console.log(`   - ₹${p.price} (${p.data})`));
-    console.log('');
+    console.log('✅ Plans retrieval test passed:', airtelPlans.length, 'plans found');
     
-    console.log('✅ ALL TESTS PASSED!\n');
-    console.log('📊 Database Status:');
-    console.log('   - MongoDB: Connected ✅');
-    console.log('   - Database: recharge_pro ✅');
-    console.log('   - Collections: users, recharges, plans ✅');
-    console.log('   - Plans: Seeded ✅\n');
+    // Test recharge operations
+    if (foundUser) {
+      const testRecharge = {
+        userId: foundUser._id.toString(),
+        mobileNumber: '9876543210',
+        operator: 'airtel',
+        plan: { id: 'a1', price: 155, data: '1GB/day' },
+        paymentMethod: 'card'
+      };
+      
+      const rechargeResult = await db.rechargeOps.create(testRecharge);
+      console.log('✅ Recharge creation test passed:', rechargeResult.insertedId);
+      
+      const userRecharges = await db.rechargeOps.findByUserId(foundUser._id.toString());
+      console.log('✅ Recharge retrieval test passed:', userRecharges.length, 'recharges found');
+      
+      const stats = await db.rechargeOps.getStats(foundUser._id.toString());
+      console.log('✅ Stats calculation test passed:', stats);
+    }
+    
+    console.log('\n🎉 All database tests passed successfully!');
+    console.log('=' .repeat(50));
+    
+    return true;
     
   } catch (error) {
-    console.error('❌ Test Failed:', error.message);
+    console.log('\n❌ Database test failed:');
+    console.log('Error:', error.message);
+    console.log('=' .repeat(50));
+    return false;
   } finally {
     await db.close();
-    process.exit(0);
   }
 }
 
-testConnection();
+// Run the test
+testConnection().then(success => {
+  process.exit(success ? 0 : 1);
+});

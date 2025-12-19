@@ -3,17 +3,21 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const path = require('path');
+require('dotenv').config();
 const db = require('./db');
 
 const server = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
-server.use(cors());
+server.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  credentials: true
+}));
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(session({
-  secret: 'recharge-pro-secret-key',
+  secret: process.env.SESSION_SECRET || 'recharge-pro-secret-key',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false }
@@ -24,6 +28,7 @@ server.use('/api/auth', require('./routes/auth'));
 server.use('/api/recharge', require('./routes/recharge'));
 server.use('/api/plans', require('./routes/plans'));
 server.use('/api/reviews', require('./routes/reviews'));
+server.use('/api/admin', require('./routes/admin'));
 
 // Health check
 server.get('/api/health', (req, res) => {
@@ -95,15 +100,55 @@ server.get('*', (req, res) => {
 // Connect to MongoDB and start server
 db.connect()
   .then(async () => {
-    await db.planOps.seedPlans();
-    server.listen(PORT, () => {
-      console.log(`🚀 Server is running at http://localhost:${PORT}`);
-      console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+    console.log('🌱 Seeding initial data...');
+    try {
+      await db.planOps.seedPlans();
+      console.log('✅ Database setup complete');
+    } catch (err) {
+      console.log('⚠️  Seeding error (continuing):', err.message);
+    }
+    
+    server.listen(PORT, (err) => {
+      if (err) {
+        if (err.code === 'EADDRINUSE') {
+          console.error(`❌ Port ${PORT} is already in use!`);
+          console.log('\n🔧 To fix this:');
+          console.log('1. Kill existing process: taskkill /f /im node.exe');
+          console.log('2. Or use different port: PORT=3001 npm start');
+          process.exit(1);
+        } else {
+          console.error('Server error:', err);
+          process.exit(1);
+        }
+      } else {
+        console.log('\n🎉 SERVER STARTED SUCCESSFULLY!');
+        console.log(`🚀 Server is running at http://localhost:${PORT}`);
+        console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+        console.log(`🗄️  Database: ${process.env.DB_NAME || 'recharge_pro'}`);
+        console.log('\n📋 Available endpoints:');
+        console.log('   • GET  /api/health - Health check');
+        console.log('   • GET  /api/plans - Get all operators');
+        console.log('   • POST /api/auth/signup - User signup');
+        console.log('   • POST /api/auth/login - User login');
+        console.log('   • POST /api/recharge - Create recharge');
+        console.log('   • GET  /api/recharge - Get user recharges');
+        console.log('   • GET  /api/db-status - Database status');
+      }
     });
   })
   .catch(err => {
-    console.error('Failed to start server:', err);
-    process.exit(1);
+    console.error('\n❌ FAILED TO START SERVER');
+    console.error('Database connection failed:', err.message);
+    console.log('\n🔧 Troubleshooting steps:');
+    console.log('1. Install MongoDB locally or fix Atlas connection');
+    console.log('2. Run: mongod --dbpath ./data/db');
+    console.log('3. Or use the setup script: setup-local-mongodb.bat');
+    console.log('4. Server will continue with in-memory storage');
+    
+    // Start server anyway with in-memory storage
+    server.listen(PORT, () => {
+      console.log(`\n⚠️  Server running with in-memory storage at http://localhost:${PORT}`);
+    });
   });
 
 // Graceful shutdown
